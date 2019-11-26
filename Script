@@ -1,0 +1,115 @@
+#Comparacion de expresion en genes de interneuronas GABA en areas 10278 y 10173
+
+```{r}
+library (ABAData)
+library (ABAEnrichment)
+
+#Allen:10278 MFC_anterior (rostral) cingulate (medial prefrontal) cortex
+#Allen:10173 Dorsolateral prefrontal
+
+MFC_anterior="Allen:10278"
+ID_DFC="Allen:10173" 
+
+expr_1 = get_expression(structure_ids=MFC_anterior, gene_ids=c('GAD1','SST','VIP'), dataset='5_stages') 
+
+expr_2 = get_expression(structure_ids=ID_DFC, gene_ids=c('GAD1','SST','VIP'), dataset='5_stages') 
+
+#Obtencion de genes de interneuronas
+```
+
+```{r}
+#Genes area 1
+GAD1_1=matrix()
+SST_1=matrix()
+VIP_1=matrix()
+#Genes area 2
+GAD1_2=matrix()
+SST_2=matrix()
+VIP_2=matrix()
+#Asignacion de datos
+for(i in 1:5) {
+  if(i==1){
+    GAD1_1[i]=expr_1$age_category_1[1]
+    SST_1[i]=expr_1$age_category_1[2]
+    VIP_1[i]=expr_1$age_category_1[3]
+    
+    GAD1_2[i]=expr_2$age_category_1[1]
+    SST_2[i]=expr_2$age_category_1[2]
+    VIP_2[i]=expr_2$age_category_1[3]
+  }
+  if(i==2){
+    GAD1_1[i]=expr_1$age_category_2[1]
+    SST_1[i]=expr_1$age_category_2[2]
+    VIP_1[i]=expr_1$age_category_2[3]   
+    
+    GAD1_2[i]=expr_2$age_category_2[1]
+    SST_2[i]=expr_2$age_category_2[2]
+    VIP_2[i]=expr_2$age_category_2[3]
+  }
+  if(i==3){
+    GAD1_1[i]=expr_1$age_category_3[1]
+    SST_1[i]=expr_1$age_category_3[2]
+    VIP_1[i]=expr_1$age_category_3[3]   
+    
+    GAD1_2[i]=expr_2$age_category_3[1]
+    SST_2[i]=expr_2$age_category_3[2]
+    VIP_2[i]=expr_2$age_category_3[3]
+  }
+  if(i==4){
+    GAD1_1[i]=expr_1$age_category_4[1]
+    SST_1[i]=expr_1$age_category_4[2]
+    VIP_1[i]=expr_1$age_category_4[3]   
+    
+    GAD1_2[i]=expr_2$age_category_4[1]
+    SST_2[i]=expr_2$age_category_4[2]
+    VIP_2[i]=expr_2$age_category_4[3]
+  }
+  if(i==5){
+    GAD1_1[i]=expr_1$age_category_5[1]
+    SST_1[i]=expr_1$age_category_5[2]
+    VIP_1[i]=expr_1$age_category_5[3]   
+    
+    GAD1_2[i]=expr_2$age_category_5[1]
+    SST_2[i]=expr_2$age_category_5[2]
+    VIP_2[i]=expr_2$age_category_5[3]
+  }
+}
+#Tabulacion
+Interneuronas_1<- data.frame(GAD1_1,SST_1,VIP_1)
+Interneuronas_2<- data.frame(GAD1_2,SST_2,VIP_2)
+#Transformacion a matrices
+Inter_1 <- as.matrix.data.frame(Interneuronas_1)
+Inter_2 <- as.matrix.data.frame(Interneuronas_2)
+```
+
+```{r}
+
+library(preprocessCore)
+#Normalizaciones
+Interneu_1_norm=normalize.quantiles(Inter_1)
+Interneu_2_norm=normalize.quantiles(Inter_2)
+#Dataframe de normalizaciones
+Datos_norm <- data.frame(Interneu_1_norm,Interneu_2_norm)
+#Dataframes de genes iguales en distintas areas
+GAD_x <- data.frame(Datos_norm$X1,Datos_norm$X1.1)
+SST_x <- data.frame(Datos_norm$X2,Datos_norm$X2.1)
+VIP_x <- data.frame(Datos_norm$X3,Datos_norm$X3.1)
+```
+
+```{r}
+library (PerformanceAnalytics)
+#Correlaciones de expresion de mismos genes en distintas areas
+chart.Correlation(GAD_x)
+chart.Correlation(SST_x)
+chart.Correlation(VIP_x)
+```
+
+
+```{r}
+plot(Datos_norm$X2,type = "l", col = "red", lwd = 2, main = "SST en MFC_anterior")
+plot(Datos_norm$X2.1, type = "l", col = "red", lwd = 2, main = "SST en Dorsolateral")
+
+#Se comprueba por medio de correlaciones normalizadas que de todos los genes participantes en el neurodesarrollo de interneuronas GABA, el unico que se expresa de manera similar tanto en la corteza MFC_anterior y la Dorsolateral, es el gen SST. 
+```
+
+
